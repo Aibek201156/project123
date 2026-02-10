@@ -1,0 +1,788 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Shop</title>
+    <meta name="theme-color" content="#0b0e12">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-0: #0b0e12;
+            --bg-1: #10161c;
+            --bg-2: #151c23;
+            --card: #1b222a;
+            --card-2: #202833;
+            --line: rgba(255, 255, 255, 0.08);
+            --text-1: #eef1f6;
+            --text-2: #c8ced8;
+            --text-3: #8b93a1;
+            --accent: #aeb6c2;
+            --accent-strong: #e6ebf2;
+            --shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+            --soft: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--bg-0);
+            color: var(--text-2);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.03), transparent 45%),
+                radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.02), transparent 40%),
+                radial-gradient(circle at 70% 85%, rgba(255, 255, 255, 0.03), transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 72px 72px;
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 18px 90px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 20px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+            border: 1px solid var(--line);
+            box-shadow: var(--soft);
+            backdrop-filter: blur(16px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2b343f, #161c24);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.08);
+        }
+
+        .brand-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-1);
+        }
+
+        .brand-sub {
+            font-size: 0.9rem;
+            color: var(--text-3);
+        }
+
+        .ghost-btn {
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-1);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ghost-btn:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+            color: var(--accent-strong);
+            box-shadow: var(--soft);
+        }
+
+        .section {
+            margin-top: 28px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: var(--text-1);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .search {
+            margin-top: 24px;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 16px 18px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-1);
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search input::placeholder {
+            color: var(--text-3);
+        }
+
+        .search input:focus {
+            border-color: rgba(255, 255, 255, 0.18);
+            box-shadow: var(--soft);
+        }
+
+        .results-hint {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--text-3);
+        }
+
+        .chips {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scroll-snap-type: x mandatory;
+        }
+
+        .chips::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .chips::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-2);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            scroll-snap-align: start;
+        }
+
+        .chip.active {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--text-1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .chip-count {
+            color: var(--text-3);
+            font-size: 0.8rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .product-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            min-height: 210px;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .product-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-1);
+        }
+
+        .product-desc {
+            color: var(--text-3);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 58px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            border-top: 1px solid var(--line);
+            padding-top: 12px;
+            margin-top: auto;
+        }
+
+        .price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-1);
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: var(--text-3);
+            font-size: 0.9rem;
+            margin-right: 8px;
+        }
+
+        .badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-1);
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .stock {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+            color: var(--text-2);
+        }
+
+        .stock.low {
+            background: rgba(255, 190, 160, 0.12);
+            color: #f1c5b4;
+        }
+
+        .stock.out {
+            background: rgba(255, 120, 120, 0.12);
+            color: #f3a4a4;
+        }
+
+        .stock.infinity {
+            background: rgba(200, 200, 200, 0.08);
+            color: var(--accent);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            background: var(--accent);
+            color: #0b0e12;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent-strong);
+            box-shadow: var(--soft);
+        }
+
+        .empty {
+            margin-top: 20px;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px dashed var(--line);
+            color: var(--text-3);
+            text-align: center;
+            display: none;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(9, 12, 16, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-2);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 24px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            color: var(--text-1);
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            color: var(--text-3);
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+        .modal-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .close {
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--text-2);
+            border-radius: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 26, 32, 0.95);
+            color: var(--text-1);
+            padding: 12px 18px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            box-shadow: var(--soft);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 60;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 720px) {
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn, .close {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="grid"></div>
+
+    <main class="app">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark"></div>
+                <div>
+                    <div class="brand-title" id="shopName">Digital Shop</div>
+                    <div class="brand-sub">Каталог цифровых товаров</div>
+                </div>
+            </div>
+            <button class="ghost-btn" id="supportBtn">Поддержка</button>
+        </header>
+
+        <section class="search">
+            <input id="searchInput" type="text" placeholder="Поиск по товарам...">
+            <div class="results-hint" id="resultsHint"></div>
+        </section>
+
+        <section class="section">
+            <div class="section-title">
+                <span>Категории</span>
+            </div>
+            <div class="chips" id="categoryChips"></div>
+        </section>
+
+        <section class="section">
+            <div class="section-title">
+                <span>Товары</span>
+            </div>
+            <div class="products-grid" id="productsList"></div>
+            <div class="empty" id="emptyState">Ничего не найдено. Попробуйте изменить поиск или категорию.</div>
+        </section>
+    </main>
+
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-desc" id="modalDesc"></div>
+            <div class="stock" id="modalStock"></div>
+            <div class="modal-actions">
+                <div>
+                    <span class="old-price" id="modalOldPrice"></span>
+                    <span class="price" id="modalPrice"></span>
+                </div>
+                <button class="btn" id="modalBuy">Купить</button>
+            </div>
+            <button class="close" id="modalClose">Закрыть</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const state = {
+            categories: [],
+            products: [],
+            activeCategory: null,
+            query: '',
+            currency: '$',
+            supportUsername: ''
+        };
+
+        const tg = window.Telegram?.WebApp || null;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.setHeaderColor) tg.setHeaderColor('#10161c');
+            if (tg.setBackgroundColor) tg.setBackgroundColor('#0b0e12');
+        }
+
+        const elements = {
+            shopName: document.getElementById('shopName'),
+            supportBtn: document.getElementById('supportBtn'),
+            searchInput: document.getElementById('searchInput'),
+            resultsHint: document.getElementById('resultsHint'),
+            categoryChips: document.getElementById('categoryChips'),
+            productsList: document.getElementById('productsList'),
+            emptyState: document.getElementById('emptyState'),
+            modal: document.getElementById('productModal'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalDesc: document.getElementById('modalDesc'),
+            modalStock: document.getElementById('modalStock'),
+            modalOldPrice: document.getElementById('modalOldPrice'),
+            modalPrice: document.getElementById('modalPrice'),
+            modalBuy: document.getElementById('modalBuy'),
+            modalClose: document.getElementById('modalClose'),
+            toast: document.getElementById('toast')
+        };
+
+        const fetchJson = async (url) => {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+            return await response.json();
+        };
+
+        const debounce = (fn, delay) => {
+            let timer = null;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        };
+
+        const formatPrice = (value) => {
+            const num = Number(value);
+            if (Number.isNaN(num)) return value;
+            const digits = num % 1 ? 2 : 0;
+            const formatted = new Intl.NumberFormat('ru-RU', {
+                minimumFractionDigits: digits,
+                maximumFractionDigits: 2
+            }).format(num);
+            return `${state.currency}${formatted}`;
+        };
+
+        const stockLabel = (quantity) => {
+            if (quantity === null || quantity === undefined) {
+                return { text: 'Доступно', cls: '' };
+            }
+            if (quantity < 0) {
+                return { text: 'Безлимитно', cls: 'infinity' };
+            }
+            if (quantity === 0) {
+                return { text: 'Нет в наличии', cls: 'out' };
+            }
+            if (quantity <= 5) {
+                return { text: `Мало: ${quantity} шт.`, cls: 'low' };
+            }
+            return { text: `В наличии: ${quantity} шт.`, cls: '' };
+        };
+
+        const showToast = (text) => {
+            elements.toast.textContent = text;
+            elements.toast.classList.add('show');
+            setTimeout(() => elements.toast.classList.remove('show'), 2400);
+        };
+
+        const openSupport = () => {
+            if (!state.supportUsername) return;
+            const username = state.supportUsername.replace('@', '');
+            const url = `https://t.me/${username}`;
+            if (tg?.openTelegramLink) {
+                tg.openTelegramLink(url);
+            } else {
+                window.open(url, '_blank');
+            }
+        };
+
+        const renderCategories = () => {
+            elements.categoryChips.innerHTML = '';
+            const total = state.categories.reduce((sum, c) => sum + (c.products_count || 0), 0);
+
+            const allChip = document.createElement('button');
+            allChip.className = `chip ${state.activeCategory === null ? 'active' : ''}`;
+            allChip.innerHTML = `Все <span class="chip-count">${total}</span>`;
+            allChip.onclick = () => {
+                state.activeCategory = null;
+                loadProducts();
+                renderCategories();
+            };
+            elements.categoryChips.appendChild(allChip);
+
+            state.categories.forEach(cat => {
+                const chip = document.createElement('button');
+                chip.className = `chip ${state.activeCategory === cat.id ? 'active' : ''}`;
+                const icon = cat.icon || '📦';
+                const count = cat.products_count ?? 0;
+                chip.innerHTML = `${icon} ${cat.name} <span class="chip-count">${count}</span>`;
+                chip.onclick = () => {
+                    state.activeCategory = cat.id;
+                    loadProducts();
+                    renderCategories();
+                };
+                elements.categoryChips.appendChild(chip);
+            });
+        };
+
+        const renderProducts = () => {
+            elements.productsList.innerHTML = '';
+            if (!state.products.length) {
+                elements.emptyState.style.display = 'block';
+                elements.resultsHint.textContent = 'Совпадений не найдено.';
+                return;
+            }
+            elements.emptyState.style.display = 'none';
+            elements.resultsHint.textContent = `Найдено товаров: ${state.products.length}`;
+
+            state.products.forEach(product => {
+                const card = document.createElement('article');
+                card.className = 'product-card';
+
+                if (product.is_featured) {
+                    const badge = document.createElement('div');
+                    badge.className = 'badge';
+                    badge.textContent = 'TOP';
+                    card.appendChild(badge);
+                }
+
+                const title = document.createElement('div');
+                title.className = 'product-title';
+                title.textContent = product.name;
+
+                const desc = document.createElement('div');
+                desc.className = 'product-desc';
+                desc.textContent = product.description || 'Описание отсутствует.';
+
+                const stock = document.createElement('div');
+                const stockInfo = stockLabel(product.quantity);
+                stock.className = `stock ${stockInfo.cls}`;
+                stock.textContent = stockInfo.text;
+
+                const priceRow = document.createElement('div');
+                priceRow.className = 'price-row';
+
+                const priceWrap = document.createElement('div');
+                if (product.old_price) {
+                    const old = document.createElement('span');
+                    old.className = 'old-price';
+                    old.textContent = formatPrice(product.old_price);
+                    priceWrap.appendChild(old);
+                }
+
+                const price = document.createElement('span');
+                price.className = 'price';
+                price.textContent = formatPrice(product.price);
+                priceWrap.appendChild(price);
+
+                const buyBtn = document.createElement('button');
+                buyBtn.className = 'btn';
+                buyBtn.textContent = 'Купить';
+                buyBtn.onclick = (event) => {
+                    event.stopPropagation();
+                    buyProduct(product);
+                };
+
+                priceRow.appendChild(priceWrap);
+                priceRow.appendChild(buyBtn);
+
+                card.appendChild(title);
+                card.appendChild(desc);
+                card.appendChild(stock);
+                card.appendChild(priceRow);
+
+                card.onclick = () => openModal(product);
+                elements.productsList.appendChild(card);
+            });
+        };
+
+        const openModal = (product) => {
+            elements.modalTitle.textContent = product.name;
+            elements.modalDesc.textContent = product.description || 'Описание отсутствует.';
+
+            const stockInfo = stockLabel(product.quantity);
+            elements.modalStock.textContent = stockInfo.text;
+            elements.modalStock.className = `stock ${stockInfo.cls}`;
+
+            if (product.old_price) {
+                elements.modalOldPrice.textContent = formatPrice(product.old_price);
+            } else {
+                elements.modalOldPrice.textContent = '';
+            }
+
+            elements.modalPrice.textContent = formatPrice(product.price);
+            elements.modalBuy.onclick = () => buyProduct(product);
+            elements.modal.style.display = 'flex';
+        };
+
+        const closeModal = () => {
+            elements.modal.style.display = 'none';
+        };
+
+        const buyProduct = (product) => {
+            if (!product) return;
+            if (tg?.sendData) {
+                tg.sendData(JSON.stringify({ action: 'buy', product_id: product.id }));
+                showToast('Заявка отправлена в бот.');
+            } else {
+                showToast('Откройте мини-приложение в Telegram.');
+            }
+        };
+
+        const loadMeta = async () => {
+            try {
+                const data = await fetchJson('/api/meta');
+                if (data.shop_name) {
+                    elements.shopName.textContent = data.shop_name;
+                    document.title = data.shop_name;
+                }
+                if (data.currency_symbol) {
+                    state.currency = data.currency_symbol;
+                }
+                if (data.support_username) {
+                    state.supportUsername = data.support_username;
+                }
+            } catch (error) {
+                console.warn(error);
+            }
+        };
+
+        const loadCategories = async () => {
+            try {
+                state.categories = await fetchJson('/api/categories');
+                renderCategories();
+            } catch (error) {
+                showToast('Не удалось загрузить категории.');
+            }
+        };
+
+        const loadProducts = async () => {
+            try {
+                const params = new URLSearchParams();
+                if (state.activeCategory !== null) {
+                    params.set('category_id', state.activeCategory);
+                }
+                if (state.query) {
+                    params.set('q', state.query);
+                }
+                const url = params.toString() ? `/api/products?${params.toString()}` : '/api/products';
+                state.products = await fetchJson(url);
+                renderProducts();
+            } catch (error) {
+                showToast('Не удалось загрузить товары.');
+            }
+        };
+
+        elements.searchInput.addEventListener('input', debounce((event) => {
+            state.query = event.target.value.trim();
+            loadProducts();
+        }, 300));
+
+        elements.supportBtn.addEventListener('click', openSupport);
+        elements.modalClose.addEventListener('click', closeModal);
+        elements.modal.addEventListener('click', (event) => {
+            if (event.target === elements.modal) closeModal();
+        });
+
+        const init = async () => {
+            await loadMeta();
+            await loadCategories();
+            await loadProducts();
+        };
+
+        init();
+    </script>
+</body>
+</html>
